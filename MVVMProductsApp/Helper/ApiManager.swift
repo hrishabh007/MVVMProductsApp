@@ -15,14 +15,18 @@ enum DataError: Error {
   case network(_ error: Error?)
 }
 
-typealias Handler = (Result<[Product], DataError>) -> Void
+typealias Handler<T> = (Result<T, DataError>) -> Void
 //Singleton Design Pattern
 class ApiManager {
   static let shared = ApiManager()
   private init() {}
 
-  func fetchProducts(completion: @escaping Handler) {
-    guard let url = URL(string: Constants.API.productURL) else {
+  func request<T: Decodable>(
+    modelType: T.Type,
+    type: EndPointType,
+    completion: @escaping Handler<T>
+  ) {
+      guard let url = type.url else {
       completion(.failure(.invalidURL))
       return
     }
@@ -38,7 +42,7 @@ class ApiManager {
       }
       // JSONDecoder () - Data ka Model (Array) mai convert karega
       do {
-        let products = try JSONDecoder().decode([Product].self, from: data)
+        let products = try JSONDecoder().decode(modelType, from: data)
         completion(.success(products))
       } catch {
         completion(.failure(.network(error)))
@@ -46,5 +50,31 @@ class ApiManager {
 
     }.resume()
   }
+
+  //  func fetchProducts(completion: @escaping Handler) {
+  //    guard let url = URL(string: Constants.API.productURL) else {
+  //      completion(.failure(.invalidURL))
+  //      return
+  //    }
+  //    URLSession.shared.dataTask(with: url) {
+  //      data, responce, error in
+  //      guard let data, error == nil else {
+  //        completion(.failure(.invalidData))
+  //        return
+  //      }
+  //      guard let responce = responce as? HTTPURLResponse, 200...299 ~= responce.statusCode else {
+  //        completion(.failure(.invalidResponse))
+  //        return
+  //      }
+  //      // JSONDecoder () - Data ka Model (Array) mai convert karega
+  //      do {
+  //        let products = try JSONDecoder().decode([Product].self, from: data)
+  //        completion(.success(products))
+  //      } catch {
+  //        completion(.failure(.network(error)))
+  //      }
+  //
+  //    }.resume()
+  //  }
 
 }

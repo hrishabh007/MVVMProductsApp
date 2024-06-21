@@ -21,25 +21,28 @@ enum EndPointsItems {
   case products
 }
 
-////https://fakestoreapi.com/products
-//extension EndPointsItems: EndPointType {
-//  var path: String {
-//    switch self {
-//    case .products:
-//      return "products"
-//    }
-//  }
-//
-//  var baseURL: String {
-//    return "https://fakestoreapi.com/products"
-//  }
-//
-//  var url: URL? {
-//      return URL(string: "\(baseURL) \(path) ")
-//  }
-//
-//  var method: HTTPMethods {
-//    
-//  }
-//
-//}
+//https://fakestoreapi.com/products
+extension EndPointsItems: EndPointType {
+  var path: String {
+    switch self {
+    case .products:
+      return "products"
+    }
+  }
+
+  var baseURL: String {
+    return "https://fakestoreapi.com/"
+  }
+
+  var url: URL? {
+    return URL(string: "\(baseURL)\(path)")
+  }
+
+  var method: HTTPMethods {
+    switch self {
+    case .products:
+      return .get
+    }
+  }
+
+}
