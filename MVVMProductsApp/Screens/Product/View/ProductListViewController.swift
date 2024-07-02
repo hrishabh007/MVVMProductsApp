@@ -13,6 +13,11 @@ class ProductListViewController: UIViewController {
 
   private var viewModel = ProductViewModel()
 
+  @IBAction func addTapped(_ sender: UIBarButtonItem) {
+
+    let products = AddProduct(title: "iphone")
+    viewModel.addProduct(parameter: products)
+  }
   override func viewDidLoad() {
     super.viewDidLoad()
 
@@ -70,7 +75,9 @@ extension ProductListViewController {
         //          }
         print(self.viewModel.products)
       case .stopLoading: break
-      case .error(let error): print(error)
+      case .error(let error): print(error ?? "")
+      case .newProductAdded(product: let newproduct):
+        print(newproduct)
       }
     }
 

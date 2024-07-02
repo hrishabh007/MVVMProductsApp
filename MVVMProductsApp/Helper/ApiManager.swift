@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import UIKit
 
 enum DataError: Error {
   case invalidURL
@@ -21,16 +20,26 @@ class ApiManager {
   static let shared = ApiManager()
   private init() {}
 
-  func request<T: Decodable>(
+  func request<T: Codable>(
     modelType: T.Type,
     type: EndPointType,
     completion: @escaping Handler<T>
   ) {
-      guard let url = type.url else {
+    guard let url = type.url else {
       completion(.failure(.invalidURL))
       return
     }
-    URLSession.shared.dataTask(with: url) {
+
+    var request = URLRequest(url: url)
+    request.httpMethod = type.method.rawValue
+
+    if let parameters = type.body {
+      request.httpBody = try? JSONEncoder().encode(parameters)
+    }
+    request.allHTTPHeaderFields = type.headers
+      
+      //Background Task
+    URLSession.shared.dataTask(with: request) {
       data, responce, error in
       guard let data, error == nil else {
         completion(.failure(.invalidData))
@@ -49,6 +58,11 @@ class ApiManager {
       }
 
     }.resume()
+  }
+  static var commonHeader: [String: String] {
+    return [
+      "Content-Type": "application/json"
+    ]
   }
 
   //  func fetchProducts(completion: @escaping Handler) {
